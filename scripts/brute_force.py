@@ -15,6 +15,9 @@ THRESHOLD_VAL = 5 #verify good constant name
 GLOBAL_INDEX = 49 #verify good constant name
 INDEX_THRESHOLD = 10 #verify good constant name
 
+'''
+    Evalutes brute force perturbations against LXR's perturbations.
+'''
 class BruteForceEvaluator:
     def __init__(self, data_name, recommender_name, recommender, kw_dict):
         self.data_name = data_name
@@ -24,6 +27,9 @@ class BruteForceEvaluator:
         self.device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
         self._load_lxr_outputs()
 
+    '''
+        Loads LXR outputs from .pkl files.
+    '''
     def _load_lxr_outputs(self):
         d = self.data_name
         r = self.recommender_name
@@ -35,10 +41,19 @@ class BruteForceEvaluator:
         self.Targ_test = self._load_pickle(f'Targ_Test_LXR_{d}_{r}.pkl')
         self.Targ_INDX = self._load_pickle(f'Targ_INDX_LXR_{d}_{r}.pkl')
 
+    '''
+        Loads
+        filename: name of pickle file to be loaded
+        returns: object of loaded file
+    '''
     def _load_pickle(self, filename):
         with open(filename, 'rb') as f:
             return pickle.load(f)
-        
+    
+    '''
+        Creates subsets of LXR perturbation set and predicts if ranking changes with smaller set.
+        Prints out MPNR achieved for LXR and brute force search.
+    '''
     def evaluate(self):
         indices = [i for i, val in enumerate(self.MPRR_R[GLOBAL_INDEX]) if val < THRESHOLD_VAL]
         MPNR_lxr = []
