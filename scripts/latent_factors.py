@@ -40,9 +40,9 @@ class LatentFactorExplainer:
         random_rows = np.random.choice(self.test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = self.test_array[random_rows]
 
-        for j in range(random_sampled_array.shape[0]):
-            user_id = random_sampled_array[j][-1]
-            user_tensor = torch.Tensor(random_sampled_array[j][:-1]).to(self.device)
+        for i in range(random_sampled_array.shape[0]):
+            user_id = random_sampled_array[i][-1]
+            user_tensor = torch.Tensor(random_sampled_array[i][:-1]).to(self.device)
             targ = np.random.choice(self.targ_test[user_id])
             targ_indx = list(self.targ_test[user_id]).index(targ)
             p = self._calculate_explanation(user_tensor, targ, targ_indx)
@@ -76,10 +76,10 @@ class LatentFactorExplainer:
     def _find_mask(self, user_tensor, targ_id):
         targ_embedd = self.item_embeddings[:,targ_id]
         item_sim_dict = {} 
-        for itm in user_tensor.nonzero().squeeze():
-            user_emebdd = self.user_embeddings[:, itm]
+        for item in user_tensor.nonzero().squeeze():
+            user_emebdd = self.user_embeddings[:, item]
             score = self._cosine_similarity_manual(targ_embedd, user_emebdd)
-            item_sim_dict[itm] = score
+            item_sim_dict[item] = score
         return item_sim_dict
     
     '''

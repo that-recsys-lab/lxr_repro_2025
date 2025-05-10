@@ -59,22 +59,22 @@ class BruteForceEvaluator:
         MPNR_lxr = []
         MPNR_bf = []
 
-        for j in indices:
-            user_tensor = self.User_Tensor[GLOBAL_INDEX][j].to(self.device)
-            pert = self.Mask[GLOBAL_INDEX][j].to(self.device)
+        for i in indices:
+            user_tensor = self.User_Tensor[GLOBAL_INDEX][i].to(self.device)
+            pert = self.Mask[GLOBAL_INDEX][i].to(self.device)
             vec = torch.nonzero(pert).view(-1).tolist()
             all_combinations = [list(c) for r in range(1, len(vec) + 1) for c in combinations(vec, r)]
-            MPNR_lxr.append(self.MPRR_R[GLOBAL_INDEX][j])
+            MPNR_lxr.append(self.MPRR_R[GLOBAL_INDEX][i])
 
-            for i in all_combinations:
+            for j in all_combinations:
                 mask = torch.zeros_like(user_tensor, device=self.device)
-                mask[i] = 1
+                mask[j] = 1
                 p = user_tensor - mask # choose more informative name 
-                indx = get_index_in_the_list(p, user_tensor, self.Targ_test[GLOBAL_INDEX][j], self.recommender, **self.kw_dict) + 1
+                indx = get_index_in_the_list(p, user_tensor, self.Targ_test[GLOBAL_INDEX][i], self.recommender, **self.kw_dict) + 1
 
-                if indx > DEFAULT_K + self.Targ_INDX[GLOBAL_INDEX][j]:
-                    MPNR_lxr.append(self.MPRR_R[GLOBAL_INDEX][j])
-                    MPNR_bf.append(len(i))
+                if indx > DEFAULT_K + self.Targ_INDX[GLOBAL_INDEX][i]:
+                    MPNR_lxr.append(self.MPRR_R[GLOBAL_INDEX][i])
+                    MPNR_bf.append(len(j))
                     break
 
         mean_lxr = np.mean(MPNR_lxr) if MPNR_lxr else 0.0

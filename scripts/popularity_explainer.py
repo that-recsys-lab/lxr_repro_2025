@@ -36,9 +36,9 @@ class PopularityExplainer:
         random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = test_array[random_rows]
         total_pert_sizes = []
-        for j in range(num_of_rand_users):
-            user_id = random_sampled_array[j][-1]
-            user_tensor = torch.Tensor(random_sampled_array[j][:-1]).to(self.device)
+        for i in range(num_of_rand_users):
+            user_id = random_sampled_array[i][-1]
+            user_tensor = torch.Tensor(random_sampled_array[i][:-1]).to(self.device)
             user_hist_size = int(torch.sum(user_tensor))
             targ_item = np.random.choice(targ_test[user_id])
             targ_idx = list(targ_test[user_id]).index(targ_item)
