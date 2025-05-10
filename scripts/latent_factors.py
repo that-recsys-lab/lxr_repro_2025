@@ -9,9 +9,7 @@ export_dir = os.getcwd()
 
 
 class LatentFactorExplainer:
-    
     def __init__(self,MF_recommender,recommender,kw_dict,targ_test, test_array, recommender_name, data_name):
-
         self.user_embeddings = MF_recommender.users_fc.weight.detach().cpu().numpy()
         self.item_embeddings = MF_recommender.items_fc.weight.detach().cpu().numpy()
         self.kw_dict=kw_dict
@@ -23,9 +21,6 @@ class LatentFactorExplainer:
         self.items_array=kw_dict['items_array']
         self.device=kw_dict['device']
 
-
-
-
     def find_mask(self, user_tensor, targ_id):
         """ computing mask for each user """
 
@@ -33,13 +28,11 @@ class LatentFactorExplainer:
         item_sim_dict  ={} 
         for itm in user_tensor.nonzero().squeeze():
             user_emebdd=self.user_embeddings[:,itm]
-            score=self.cosine_similarity_manual(targ_embedd,user_emebdd)
+            score=self._cosine_similarity_manual(targ_embedd,user_emebdd)
             item_sim_dict[itm]=score
         return item_sim_dict
     
-
-
-    def cosine_similarity_manual(self,vec1, vec2):
+    def _cosine_similarity_manual(self,vec1, vec2):
         """Compute cosine similarity between two vectors manually."""
         
         dot_product = np.dot(vec1, vec2)  # Compute dot product
