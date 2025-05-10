@@ -22,7 +22,7 @@ class LatentFactorExplainer:
         self.items_array=kw_dict['items_array']
         self.device=kw_dict['device']
 
-    def predict(self):
+    def evaluate(self):
         torch.manual_seed(SEED)
         np.random.seed(SEED)
 
