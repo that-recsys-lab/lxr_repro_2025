@@ -16,7 +16,7 @@ GLOBAL_INDEX = 49 #verify good constant name
 INDEX_THRESHOLD = 10 #verify good constant name
 
 '''
-    Evalutes brute force perturbations against LXR's perturbations.
+    Evaluates brute force perturbations against LXR's perturbations.
 '''
 class BruteForceEvaluator:
     def __init__(self, data_name, recommender_name, recommender, kw_dict):
@@ -42,7 +42,7 @@ class BruteForceEvaluator:
         self.Targ_INDX = self._load_pickle(f'Targ_INDX_LXR_{d}_{r}.pkl')
 
     '''
-        Loads
+        Loads pickle file.
         filename: name of pickle file to be loaded
         returns: object of loaded file
     '''
