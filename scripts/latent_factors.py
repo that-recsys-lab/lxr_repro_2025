@@ -12,12 +12,12 @@ class LatentFactorExplainer:
     def __init__(self,MF_recommender,recommender,kw_dict,targ_test, test_array, recommender_name, data_name):
         self.user_embeddings = MF_recommender.users_fc.weight.detach().cpu().numpy()
         self.item_embeddings = MF_recommender.items_fc.weight.detach().cpu().numpy()
-        self.kw_dict=kw_dict
         self.recommender=recommender
+        self.kw_dict=kw_dict
+        self.targ_test=targ_test
         self.test_array=test_array
         self.recommender_name=recommender_name
         self.data_name=data_name
-        self.targ_test=targ_test
         self.items_array=kw_dict['items_array']
         self.device=kw_dict['device']
 
@@ -45,9 +45,6 @@ class LatentFactorExplainer:
         
         similarity = dot_product / (norm_vec1 * norm_vec2)
         return similarity
-    
-    
-    
     
     def mask_items(self,user_tensor, m1, p):
         # Helper function to mask items
