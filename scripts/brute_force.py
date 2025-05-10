@@ -13,7 +13,7 @@ export_dir = os.getcwd()
 
 THRESHOLD_VAL = 5 #verify good constant name
 GLOBAL_INDEX = 49 #verify good constant name
-INDEX_THRESHOLD = 10 #verify good constant name
+INDEX_THRESHOLD = 10 #verify good constant name; is this k in latent factors and popularity explainer?
 
 '''
     Evaluates brute force perturbations against LXR's perturbations.
@@ -69,7 +69,7 @@ class BruteForceEvaluator:
             for i in all_combinations:
                 mask = torch.zeros_like(user_tensor, device=self.device)
                 mask[i] = 1
-                p = user_tensor - mask
+                p = user_tensor - mask # choose more informative name 
                 indx = get_index_in_the_list(p, user_tensor, self.Targ_test[GLOBAL_INDEX][j], self.recommender, **self.kw_dict) + 1
 
                 if indx > INDEX_THRESHOLD + self.Targ_INDX[GLOBAL_INDEX][j]:
