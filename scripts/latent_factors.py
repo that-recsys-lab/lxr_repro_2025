@@ -36,7 +36,7 @@ class LatentFactorExplainer:
         np.random.seed(SEED)
 
         MPRR_Row, MPRR_Percent = [], []
-        num_of_rand_users = self.test_array.shape[0]   # number of users for evaluations 
+        num_of_rand_users = self.test_array.shape[0]
         random_rows = np.random.choice(self.test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = self.test_array[random_rows]
 
