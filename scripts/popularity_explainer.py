@@ -6,7 +6,10 @@ from help_functions import get_index_in_the_list
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 export_dir = os.getcwd()
-SEED = 42
+
+SEED = 42 #random seed for random and torch 
+DEFAULT_K = 10 #how many places away target item must be; CHECK
+
 
 '''
     Makes explanations based on popularity of items.
@@ -40,12 +43,12 @@ class PopularityExplainer:
             targ_item = np.random.choice(targ_test[user_id])
             targ_idx = list(targ_test[user_id]).index(targ_item)
 
-            total_items = self._calculate_explanation(user_tensor, targ_item, targ_idx, user_hist_size, k=10)
+            total_items = self._calculate_explanation(user_tensor, targ_item, targ_idx, user_hist_size)
             if total_items is not None:
                 total_pert_sizes.append(total_items)
 
-        print(f'MPNR for Popularity Explainer on {self.data_name} and {self.recommender_name} is ', np.mean(total_pert))
-        print(f'Coverage for Popularity Explainer on {self.data_name} and {self.recommender_name} is ', len(total_pert)*100/num_of_rand_users)
+        print(f'MPNR for Popularity Explainer on {self.data_name} and {self.recommender_name} is ', np.mean(total_pert_sizes))
+        print(f'Coverage for Popularity Explainer on {self.data_name} and {self.recommender_name} is ', (len(total_pert_sizes) * 100) / num_of_rand_users)
 
     '''
         Calculates explanation (how many items should be removed to achieve target).
@@ -53,12 +56,11 @@ class PopularityExplainer:
         targ_id: id of the target item
         targ_idx: index of the target item
         user_hist_size: how many items to consider from the user profile
-        k: how many places away target item must be
         returns: number of items to be removed
     '''
-    def _calculate_explanation(self, user_tensor, targ_id, targ_idx, user_hist_size, k):
+    def _calculate_explanation(self, user_tensor, targ_id, targ_idx, user_hist_size):
         pop_sim_items = self._find_POP_mask(user_tensor)
-        total_items = self._process_sim_items(user_tensor, targ_id, targ_idx, user_hist_size, pop_sim_items, k)
+        total_items = self._process_sim_items(user_tensor, targ_id, targ_idx, user_hist_size, pop_sim_items)
         return total_items
 
     '''
@@ -79,10 +81,9 @@ class PopularityExplainer:
         targ_idx: index of the target item
         user_hist_size: how many items to consider from the user profile
         sim_items: user/item similarity dictionary
-        k: how many places away target item must be
         returns: number of items to be removed
     '''
-    def _process_sim_items(self, user_tensor, targ_id, targ_idx, user_hist_size, sim_items, k):
+    def _process_sim_items(self, user_tensor, targ_id, targ_idx, user_hist_size, sim_items):
         sorted_sim_items = list(sorted(sim_items.items(), key=lambda item: item[1], reverse=True))[:user_hist_size]
 
         total_items = 0
@@ -92,7 +93,7 @@ class PopularityExplainer:
             kw_dict=  self.kw_dict #suggest directly using the target index instead of passing in the whole dictionary
             targ_rank = get_index_in_the_list(POS_masked, user_tensor, targ_id, self.recommender, **kw_dict) + 1
         
-            if (targ_rank > k + targ_idx):
+            if (targ_rank > DEFAULT_K + targ_idx):
                 return total_items
     
         return None

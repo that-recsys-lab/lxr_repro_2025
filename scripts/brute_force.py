@@ -11,9 +11,9 @@ from help_functions import get_index_in_the_list #not sure where help_functions 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 export_dir = os.getcwd()
 
-THRESHOLD_VAL = 5 #verify good constant name
-GLOBAL_INDEX = 49 #verify good constant name
-INDEX_THRESHOLD = 10 #verify good constant name; is this k in latent factors and popularity explainer?
+THRESHOLD_VAL = 5 #verify good constant name; PROVIDE DESCRIPTION
+GLOBAL_INDEX = 49 #verify good constant name; PROVIDE DESCRIPTION
+DEFAULT_K = 10 #how many places away target item must be; CHECK is this k in latent factors and popularity explainer?
 
 '''
     Evaluates brute force perturbations against LXR's perturbations.
@@ -72,7 +72,7 @@ class BruteForceEvaluator:
                 p = user_tensor - mask # choose more informative name 
                 indx = get_index_in_the_list(p, user_tensor, self.Targ_test[GLOBAL_INDEX][j], self.recommender, **self.kw_dict) + 1
 
-                if indx > INDEX_THRESHOLD + self.Targ_INDX[GLOBAL_INDEX][j]:
+                if indx > DEFAULT_K + self.Targ_INDX[GLOBAL_INDEX][j]:
                     MPNR_lxr.append(self.MPRR_R[GLOBAL_INDEX][j])
                     MPNR_bf.append(len(i))
                     break

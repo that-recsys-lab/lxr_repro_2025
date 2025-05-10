@@ -6,7 +6,10 @@ from help_functions import get_index_in_the_list
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 export_dir = os.getcwd()
-SEED = 42
+
+SEED = 42 #random seed for random and torch 
+DEFAULT_K = 10 #how many places away target item must be; CHECK
+
 
 '''
     Makes explanations based on latent factors between items and users.
@@ -42,24 +45,23 @@ class LatentFactorExplainer:
             user_tensor = torch.Tensor(random_sampled_array[j][:-1]).to(self.device)
             targ = np.random.choice(self.targ_test[user_id])
             targ_indx = list(self.targ_test[user_id]).index(targ)
-            p = self._calculate_explanation(user_tensor, targ, targ_indx, k=10)
+            p = self._calculate_explanation(user_tensor, targ, targ_indx)
 
             if p is not None:
                 MPRR_Row.append(p)
                 MPRR_Percent.append(p / int(torch.sum(user_tensor)))
 
         print(f'MPNR Row for latent factors similarity for {self.data_name} and {self.recommender_name}:', np.mean(MPRR_Row))
-        print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', (len(MPRR_Row)*100) / num_of_rand_users)
+        print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', (len(MPRR_Row) * 100) / num_of_rand_users)
 
     '''
         Calculates explanation (how many items should be removed to achieve target).
         user_tensor: tensor representing the user
         targ_id: id of the target item
         targ_idx: index of the target item
-        k: how many places away target item must be
         returns: number of items to be removed
     '''
-    def _calculate_explanation(self, user_tensor, targ_id, targ_idx, k):
+    def _calculate_explanation(self, user_tensor, targ_id, targ_idx):
         m = self._find_mask(user_tensor, targ_id)
         total_items_to_remove = self._process_sim_items(user_tensor, targ_id, targ_idx, user_tensor, m)
     
@@ -86,10 +88,9 @@ class LatentFactorExplainer:
         targ_id: id of the target item
         targ_idx: index of the target item
         mask: user/item similarity dictionary
-        k: how many places away target item must be
         returns: number of items to be removed
     '''
-    def _process_sim_items(self, user_tensor, targ_id, targ_idx, mask, k=10):
+    def _process_sim_items(self, user_tensor, targ_id, targ_idx, mask):
         sorted_m = list(sorted(mask.items(), key=lambda item: item[1], reverse=True))
         total_items = 0
 
@@ -99,7 +100,7 @@ class LatentFactorExplainer:
             kw_dict = self.kw_dict #suggest directly using the target index instead of passing in the whole dictionary
             i1_rank = get_index_in_the_list(p, user_tensor, targ_id, self.recommender, **kw_dict) + 1
             
-            if (i1_rank > targ_idx + k):
+            if (i1_rank > targ_idx + DEFAULT_K):
                 return total_items
 
         return None
