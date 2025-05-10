@@ -52,7 +52,7 @@ class LatentFactorExplainer:
         print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', len(MPRR_Row)*100/num_of_rand_users)
 
     '''
-        Calculates explanation (what items should be removed to achieve target).
+        Calculates explanation (how many items should be removed to achieve target).
         user_tensor: tensor representing the user
         targ_id: id of the target item
         targ_idx: index of the target item
