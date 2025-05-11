@@ -1,16 +1,8 @@
 import pandas as pd
 import numpy as np
-import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-export_dir = os.getcwd()
-from pathlib import Path
-import pickle
-from collections import defaultdict
-import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import copy
 from load_data import load_data
 
 
@@ -24,7 +16,7 @@ class Help_Functions:
 
         self.device = kw['device']
         self.num_items = kw['num_items']
-        dict_data=load_data(data_name, recommender_name)
+        dict_data=load_data(data_name, recommender_name,kw )
         self.all_items_tensor = dict_data['all_items_tensor']
         self.items_array = dict_data['items_array']
         self.pop_array = dict_data['pop_array']
