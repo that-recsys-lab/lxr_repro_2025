@@ -153,6 +153,7 @@ class LatentFactorExplainer:
         num_of_rand_users = test_array.shape[0]   # number of users for evaluations 
         random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = test_array[random_rows]
+        print(f'======================== Latent Factors (LF) Explainer run for {self.data_name} and {self.recommender_name}========================')
 
 
         for j in range(random_sampled_array.shape[0]):

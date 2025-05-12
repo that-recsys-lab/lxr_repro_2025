@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from load_data import load_data
+from scripts.load_data import load_data
 from pathlib import Path
 import os
 

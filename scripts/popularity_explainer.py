@@ -5,10 +5,10 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 from os import path
-from help_functions import Help_Functions
-from recommender.recommenders_architecture import MLP, VAE
-from Config_Kw_Dict import get_kw_dict
-from load_data import load_data, targ_item
+from scripts.help_functions import Help_Functions
+from scripts.recommender.recommenders_architecture import MLP, VAE
+from scripts.Config_Kw_Dict import get_kw_dict
+from scripts.load_data import load_data, targ_item
 
 
 
@@ -113,11 +113,13 @@ class PopularityExplainer:
         _, targ_test=targ_item( self.data_name, self.recommender_name, self.recommender, self.kw_dict)
         self.pop_dict=dict_data['pop_dict']
         # number of users for evaluations
+
         test_array=dict_data['test_array']
         num_of_rand_users = test_array.shape[0] 
         random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = test_array[random_rows]
         total_pert=[]  ## size of perturbations
+        print(f'======================== Popularity Explainer run for {self.data_name} and {self.recommender_name}========================')
 
         for j in range(num_of_rand_users):
             user_id = random_sampled_array[j][-1]
@@ -127,7 +129,6 @@ class PopularityExplainer:
             targ_idx=list(targ_test[user_id]).index(targ_itm)
 
             targ_vector = dict_data['items_array'][targ_itm]
-            targ_tensor = torch.Tensor(targ_vector).to(self.device)
             total_items= self.calculate_explanation(user_tensor, targ_itm, targ_idx, user_hist_size, k=10)
             if total_items is not None:
                 total_pert.append(total_items)

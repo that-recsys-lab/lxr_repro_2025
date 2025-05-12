@@ -1,12 +1,8 @@
-
-
-import pandas as pd
 import numpy as np
 import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-export_dir = os.getcwd()
 from pathlib import Path
 import pickle
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 from collections import defaultdict
 import torch
 import torch.nn as nn
@@ -14,13 +10,12 @@ import optuna
 import logging
 import matplotlib.pyplot as plt
 import wandb
-from Config_Kw_Dict import get_kw_dict
-from help_functions import Help_Functions
-from Evaluation import Evaluation
-from Explainer import Explainer
-from LXR_loss import LXR_loss
-from load_data import targ_item, load_data
-from recommender.recommenders_architecture import MLP, VAE
+from scripts.Config_Kw_Dict import get_kw_dict
+from scripts.Evaluation import Evaluation
+from scripts.Explainer import Explainer
+from scripts.LXR_loss import LXR_loss
+from scripts.load_data import targ_item, load_data
+from scripts.recommender.recommenders_architecture import MLP, VAE
 
 
 
@@ -36,7 +31,7 @@ from recommender.recommenders_architecture import MLP, VAE
 
 class LXR_10 ():
 
-    def __init__(self, data_name, recommender_name,num_of_rand_users ):
+    def __init__(self, recommender_name,data_name, num_of_rand_users ):
         self.data_name=data_name
         self.recommender_name=recommender_name
         self.num_of_rand_users=num_of_rand_users
@@ -44,13 +39,13 @@ class LXR_10 ():
         self.device=self.kw['device']
         self.recommender=self.load_recommender(recommender_name)
 
-        ## defining path for saving explainer
-
-        export_dir = Path(os.getcwd())
-        #self.checkpoints_path = Path(export_dir, "checkpoints")
 
 
 
+
+
+
+    
     def load_recommender(self,recommender_name):
         kw_dict= self.kw
         #data_name=self.data_name
@@ -65,13 +60,6 @@ class LXR_10 ():
         for param in recommender.parameters():
             param.requires_grad= False
         return recommender
-
-
-    
-
-
-    
-
 
 
 

@@ -7,7 +7,7 @@ import torch
 
 
 def get_kw_dict():
-    export_dir = Path(os.getcwd())
+    export_dir = Path(os.getcwd(),'scripts')
     checkpoints_path = Path(export_dir, "checkpoints")
 
     return {
@@ -61,23 +61,23 @@ def get_kw_dict():
                             "MLP": {
                                 "ML1M": {
                                     'learning_rate': 0.001, 'lambda_neg': 0.1414854294885049 , 'lambda_pos': 11.59908096547193,
-                                    'alpha': 1, 'batch_size': 32, 'explainer_hidden_size': 64, 'epochs': 50 
+                                    'alpha': 1, 'batch_size': 32, 'explainer_hidden_size': 64, 'epochs': 80 
                                 },
                                 "Yahoo": {
                                     'learning_rate': 0.01, 'lambda_neg': 0.19367009952856118, 'lambda_pos':12.40692505393434 ,
-                                    'alpha': 1, 'batch_size': 64, 'explainer_hidden_size': 128, 'epochs': 50
+                                    'alpha': 1, 'batch_size': 64, 'explainer_hidden_size': 128, 'epochs': 80
                                 },
 
                                 "Pinterest": {
                                             'learning_rate': 0.001, 'lambda_neg': 0.705778173474644, 'lambda_pos':10.059416809308486 ,
-                                            'alpha': 1, 'batch_size': 16, 'explainer_hidden_size': 16, 'epochs': 50},
+                                            'alpha': 1, 'batch_size': 16, 'explainer_hidden_size': 16, 'epochs': 80},
 
                             },
                             
                             "VAE": {
                                 "ML1M": {
                                     'learning_rate': 0.01, 'lambda_neg': 0.2535186589375764, 'lambda_pos': 2.456195926869126,
-                                    'alpha': 1, 'batch_size': 64, 'explainer_hidden_size': 128, 'epochs': 50
+                                    'alpha': 1, 'batch_size': 64, 'explainer_hidden_size': 128, 'epochs': 80
                                 },
                                 "Yahoo": {
                                     'learning_rate': 0.01, 'lambda_neg':  1.9068379104210809, 'lambda_pos': 8.34930976885348,
@@ -85,7 +85,7 @@ def get_kw_dict():
                                 },
                                 "Pinterest": {
                                     'learning_rate': 0.04, 'lambda_neg':  1.472868807603448 , 'lambda_pos': 6.3443735346179855,
-                                    'alpha': 1, 'batch_size': 256, 'explainer_hidden_size': 32, 'epochs': 50
+                                    'alpha': 1, 'batch_size': 256, 'explainer_hidden_size': 32, 'epochs': 80
                                 },
                             }
                         }

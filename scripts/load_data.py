@@ -26,7 +26,8 @@ def load_data(data_name, recommender_name, kw_Dict):
         Tuple[np.ndarray, np.ndarray]: Processed train and test data arrays.
     """
     DP_DIR = Path("processed_data", data_name) 
-    export_dir = Path(os.getcwd()).parent
+    export_dir = Path(os.getcwd())
+    #print('export_dir',export_dir)
     files_path = Path(export_dir/'data', DP_DIR)
     num_items = kw_Dict['num_items'][data_name]
 
@@ -82,12 +83,12 @@ def load_data(data_name, recommender_name, kw_Dict):
 ## Load / create top recommended items dict
 
 def targ_item( data_name, recommender_name, recommender, kw_dict):
-    from help_functions import Help_Functions
+    from scripts.help_functions import Help_Functions
 
     #base_path = Path("processed_data") / data_name
     #full_path = Path(os.getcwd()) / base_path
     DP_DIR = Path("processed_data", data_name) 
-    export_dir = Path(os.getcwd()).parent
+    export_dir = Path(os.getcwd())
     files_path = Path(export_dir/'data', DP_DIR)
 
     device=kw_dict['device']
