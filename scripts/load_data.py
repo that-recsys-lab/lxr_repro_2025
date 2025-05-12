@@ -69,6 +69,7 @@ def load_data(data_name, recommender_name, kw_Dict):
          'train_data': train_data,
          'test_data': test_data,
          'pop_array': pop_array,
+         'pop_dict':pop_dict,
          'items_array': items_array,
          'static_test_data': static_test_data,
          'all_items_tensor': all_items_tensor

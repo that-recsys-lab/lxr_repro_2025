@@ -4,22 +4,17 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 export_dir = os.getcwd()
 from pathlib import Path
-import pickle
 from collections import defaultdict
-import time
 import torch
 import torch.nn as nn
-import copy
-import optuna
-import logging
+
 import matplotlib.pyplot as plt
-import random
-import ipynb
 #import wandb
-import importlib
 from os import path
-from collections import Counter
-from help_functions import get_index_in_the_list
+from help_functions import Help_Functions
+from recommender.recommenders_architecture import MLP, VAE
+from Config_Kw_Dict import get_kw_dict
+from load_data import load_data, targ_item
 
 
 
@@ -27,15 +22,37 @@ from help_functions import get_index_in_the_list
 
 
 class PopularityExplainer:
-    def __init__ (self, data_name, recommender_name,recommender, kw_dict ):
+    def __init__ (self,recommender_name, data_name ):
             self.data_name=data_name
             self.recommender_name=recommender_name
-            self.kw_dict=kw_dict
-            self.pop_dict=kw_dict['pop_dict']
-            self.device=kw_dict['device']
-            self.items_array=kw_dict['items_array']
-            self.recommender=recommender
+            self.kw_dict=get_kw_dict()
 
+            #self.pop_dict=self.kw_dict['pop_dict']
+            self.device=self.kw_dict['device']
+            #self.items_array=self.kw_dict['items_array']
+            self.recommender=self.load_recommender(recommender_name)
+            self.hf=Help_Functions(self.recommender, self.data_name, self.recommender_name,self.kw_dict)
+
+
+
+
+
+
+    def load_recommender(self,recommender_name):
+        kw_dict= self.kw_dict
+        #data_name=self.data_name
+        if recommender_name=='MLP':
+
+            recommender = MLP(self.data_name, **kw_dict)
+        elif recommender_name=='VAE':
+            recommender = VAE(self.data_name, **kw_dict)
+        recommender_checkpoint = torch.load(Path(kw_dict['checkpoints_path'], kw_dict['recommender_path'][(self.data_name, recommender_name)] ), map_location=kw_dict['device'])
+        recommender.load_state_dict(recommender_checkpoint)
+        recommender.eval()
+        for param in recommender.parameters():
+            param.requires_grad= False
+        return recommender
+    
 
     def find_POP_mask(self, user_tensor):
         """" For finding masks based on popularity score """
@@ -77,7 +94,7 @@ class PopularityExplainer:
             POS_masked = self.mask_items(user_tensor, sorted_sim_items, total_items)
             ##index of first item and second item after masking
             kw_dict=self.kw_dict
-            targ_rank = get_index_in_the_list(POS_masked, user_tensor, targ_id, self.recommender, **kw_dict) + 1
+            targ_rank = self.hf.get_index_in_the_list(POS_masked, user_tensor, targ_id) + 1
         
             if (targ_rank > k +targ_idx):
                 return total_items
@@ -93,24 +110,31 @@ class PopularityExplainer:
         return total_items
     
 
-    def predict (self, test_array, targ_test ):
+    def predict (self ):
         torch.manual_seed(42)
         np.random.seed(42)
-        num_of_rand_users = test_array.shape[0] # number of users for evaluations
 
+        ## loading data
+        dict_data=load_data(self.data_name, self.recommender_name, self.kw_dict)
+        _, targ_test=targ_item( self.data_name, self.recommender_name, self.recommender, self.kw_dict)
+        self.pop_dict=dict_data['pop_dict']
+        # number of users for evaluations
+        test_array=dict_data['test_array']
+        num_of_rand_users = test_array.shape[0] 
         random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = test_array[random_rows]
-        total_pert=[] ## size of perturbations
+        total_pert=[]  ## size of perturbations
+
         for j in range(num_of_rand_users):
             user_id = random_sampled_array[j][-1]
             user_tensor = torch.Tensor(random_sampled_array[j][:-1]).to(self.device)
             user_hist_size=int(torch.sum(user_tensor))
-            targ_item = np.random.choice(targ_test[user_id])
-            targ_idx=list(targ_test[user_id]).index(targ_item)
+            targ_itm = np.random.choice(targ_test[user_id])
+            targ_idx=list(targ_test[user_id]).index(targ_itm)
 
-            targ_vector = self.items_array[targ_item]
+            targ_vector = dict_data['items_array'][targ_itm]
             targ_tensor = torch.Tensor(targ_vector).to(self.device)
-            total_items= self.calculate_explanation(user_tensor, targ_item, targ_idx, user_hist_size, k=10)
+            total_items= self.calculate_explanation(user_tensor, targ_itm, targ_idx, user_hist_size, k=10)
             if total_items is not None:
                 total_pert.append(total_items)
 
