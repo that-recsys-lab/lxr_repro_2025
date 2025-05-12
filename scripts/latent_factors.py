@@ -4,12 +4,16 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 import torch
 import torch.nn as nn
 from sklearn.metrics.pairwise import cosine_similarity
-from help_functions import Help_Functions
+from scripts.help_functions import Help_Functions
 from pathlib import Path
-from load_data import load_data, targ_item
-from recommender.recommenders_architecture import MLP, VAE
-from Config_Kw_Dict import get_kw_dict
+from scripts.load_data import load_data, targ_item
+from scripts.recommender.recommenders_architecture import MLP, VAE
+from scripts.Config_Kw_Dict import get_kw_dict
 import pickle
+
+
+
+
 
 class LatentFactorExplainer:
     
@@ -137,9 +141,7 @@ class LatentFactorExplainer:
         torch.manual_seed(42)
         np.random.seed(42)
 
-        MPNR_Row, MPRR_Percent=[],[]
-        User_id_list, User_tens_list=[], []
-        targ_itm_list, targ_idx_list=[], []
+        MPNR_Row=[]
         records_list=[]
         ## loading train9ng and test datasets
         dict_data=load_data(self.data_name, self.recommender_name, self.kw )
@@ -160,7 +162,6 @@ class LatentFactorExplainer:
             targ = np.random.choice(targ_test[user_id])
             targ_indx=list(targ_test[user_id]).index(targ)
             targ_vector = items_array[targ]
-            targ_tensor = torch.Tensor(targ_vector).to(self.device)
 
             p,q = self.Calculate_Explanation (user_tensor, targ , targ_indx, k=10) ## P is perturbation size and q is sorted m
 
@@ -175,18 +176,12 @@ class LatentFactorExplainer:
                             'items_array':items_array   } ## Saving these files for ploting figures
                 records_list.append(record)
                 MPNR_Row.append(p)
-                '''
-                MPRR_Percent.append(p/int(torch.sum(user_tensor)))
-                User_id_list.append(user_id)
-                User_tens_list.append(user_tensor)
-                targ_itm_list.append(targ)
-                targ_idx_list.append(targ_indx)
-                '''
+                
 
         print(f'MPNR Row for latent factors similarity for {self.data_name} and {self.recommender_name}:', np.mean(MPNR_Row))
         print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', len(MPNR_Row)*100/num_of_rand_users)
 
-        with open(f'checkpoints/Records_LF_{self.data_name}_{self.recommender_name}.pkl', 'wb') as f:
+        with open(Path(Path(os.getcwd(),'scripts'),f'checkpoints/Records_LF_{self.data_name}_{self.recommender_name}.pkl'), 'wb') as f:
                 pickle.dump(records_list, f)
     
         
