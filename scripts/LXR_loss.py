@@ -7,22 +7,24 @@ export_dir = os.getcwd()
 from pathlib import Path
 import torch
 import torch.nn as nn
-from help_functions import recommender_run
+from help_functions import Help_Functions
 
 
 
 
 class LXR_loss(nn.Module):
 
-    def __init__(self, lambda_pos, lambda_neg, alpha,recommender, output_type,kw_dict ):
+    def __init__(self, data_name,recommender_name, lambda_pos, lambda_neg, alpha,recommender,kw_dict ):
         super(LXR_loss, self).__init__()
         
         self.lambda_pos = lambda_pos
         self.lambda_neg = lambda_neg
         self.alpha = alpha
         self.recommender=recommender
-        self.output_type=output_type
+        self.output_type=kw_dict['output_type'][recommender_name]
         self.kw_dict=kw_dict
+        self.hf=Help_Functions(recommender, data_name, recommender_name, kw_dict)
+
         
     def forward(self, user_tensors, i1_tensors, i1_id, m1):
 
@@ -40,17 +42,17 @@ class LXR_loss(nn.Module):
         if self.output_type=='single':
             
             ## Recommeder output for the target item by applying m1 mask (m1 is the mask for the target item)
-            y1_m1_pos = torch.diag(recommender_run(xm1_pos, self.recommender, i1_tensors, item_id=i1_id, wanted_output = 'single', **self.kw_dict))
+            y1_m1_pos = torch.diag(self.hf.recommender_run(xm1_pos, i1_tensors, item_id=i1_id, wanted_output = 'single'))
 
              ## Negative mask version for the target item
-            y1_m1_neg = torch.diag(recommender_run(xm1_neg, self.recommender, i1_tensors, item_id=i1_id, wanted_output = 'single', **self.kw_dict))
+            y1_m1_neg = torch.diag(self.hf.recommender_run(xm1_neg, i1_tensors, item_id=i1_id, wanted_output = 'single'))
         
 
         else:
             
             ### target item output
-            y1_m1_pos = recommender_run(xm1_pos, self.recommender, i1_tensors, item_id=i1_id, wanted_output = 'vector', **self.kw_dict)
-            y1_m1_neg = recommender_run(xm1_neg, self.recommender, i1_tensors, item_id=i1_id, wanted_output = 'vector', **self.kw_dict)
+            y1_m1_pos = self.hf.recommender_run(xm1_pos,  i1_tensors, item_id=i1_id, wanted_output = 'vector')
+            y1_m1_neg = self.hf.recommender_run(xm1_neg, i1_tensors, item_id=i1_id, wanted_output = 'vector')
 
 
             

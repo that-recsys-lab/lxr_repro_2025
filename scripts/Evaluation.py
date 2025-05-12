@@ -2,20 +2,20 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
-from help_functions import  get_index_in_the_list
+from help_functions import  Help_Functions
 
 
 
 
 class Evaluation(nn.Module):
 
-    def __init__(self, explainer, recommender, kw_dict, k):
+    def __init__(self,data_name,recommender_name, explainer, recommender, kw_dict, k):
         super(Evaluation, self).__init__()
         self.explainer = explainer
         self.recommender = recommender
         self.kw_dict = kw_dict
         self.k = k
-
+        self.hf=Help_Functions(recommender, data_name, recommender_name, kw_dict)
 
     def forward(self, user_tensor, i1, i1_index, i1_tensor):
 
@@ -46,7 +46,7 @@ class Evaluation(nn.Module):
         for _ in sorted_m1:
             total_items += 1
             p = self.mask_items(user_tensor, sorted_m1, total_items)
-            i1_rank = get_index_in_the_list(p, user_tensor, i1, self.recommender, **self.kw_dict) + 1
+            i1_rank =  self.hf.get_index_in_the_list(p, user_tensor, i1) + 1
             if i1_rank > i1_index + self.k:
                 return total_items
         return None

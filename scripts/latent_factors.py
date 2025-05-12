@@ -9,7 +9,7 @@ from pathlib import Path
 from load_data import load_data, targ_item
 from recommender.recommenders_architecture import MLP, VAE
 from Config_Kw_Dict import get_kw_dict
-
+import pickle
 
 class LatentFactorExplainer:
     
@@ -108,11 +108,11 @@ class LatentFactorExplainer:
             
             if (i1_rank > targ_idx + k):
                 #return total_items, i, Indic_score
-                return total_items
+                return total_items, sorted_m
 
 
     
-        return None
+        return None, None
     
 
     
@@ -122,11 +122,11 @@ class LatentFactorExplainer:
         m = self.find_mask(
             user_tensor, targ_id)
         #### total items to be removed from the users profile 
-        total_items=self.process_sim_items(
+        total_items, perturb=self.process_sim_items(
             m, targ_id, targ_idx, user_tensor, k=10)
     
 
-        return total_items
+        return total_items, perturb
     
 
 
@@ -137,7 +137,10 @@ class LatentFactorExplainer:
         torch.manual_seed(42)
         np.random.seed(42)
 
-        MPRR_Row, MPRR_Percent=[],[]
+        MPNR_Row, MPRR_Percent=[],[]
+        User_id_list, User_tens_list=[], []
+        targ_itm_list, targ_idx_list=[], []
+        records_list=[]
         ## loading train9ng and test datasets
         dict_data=load_data(self.data_name, self.recommender_name, self.kw )
         items_array=dict_data['items_array']
@@ -159,15 +162,34 @@ class LatentFactorExplainer:
             targ_vector = items_array[targ]
             targ_tensor = torch.Tensor(targ_vector).to(self.device)
 
-            p = self.Calculate_Explanation (user_tensor, targ , targ_indx, k=10)
+            p,q = self.Calculate_Explanation (user_tensor, targ , targ_indx, k=10) ## P is perturbation size and q is sorted m
 
             if p is not None:
-                MPRR_Row.append(p)
+                record={'MPNR':p,
+                        'NPNR_P':p/int(torch.sum(user_tensor)), 
+                        'user_id': user_id,
+                         'user_tensor': user_tensor,
+                          'targ_item': targ,
+                           'targ_index': targ_indx,
+                           'mask':q,
+                            'items_array':items_array   } ## Saving these files for ploting figures
+                records_list.append(record)
+                MPNR_Row.append(p)
+                '''
                 MPRR_Percent.append(p/int(torch.sum(user_tensor)))
+                User_id_list.append(user_id)
+                User_tens_list.append(user_tensor)
+                targ_itm_list.append(targ)
+                targ_idx_list.append(targ_indx)
+                '''
 
-        print(f'MPNR Row for latent factors similarity for {self.data_name} and {self.recommender_name}:', np.mean(MPRR_Row))
-        print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', len(MPRR_Row)*100/num_of_rand_users)
+        print(f'MPNR Row for latent factors similarity for {self.data_name} and {self.recommender_name}:', np.mean(MPNR_Row))
+        print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', len(MPNR_Row)*100/num_of_rand_users)
 
+        with open(f'checkpoints/Records_LF_{self.data_name}_{self.recommender_name}.pkl', 'wb') as f:
+                pickle.dump(records_list, f)
+    
+        
 
 
 
