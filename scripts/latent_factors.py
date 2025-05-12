@@ -24,7 +24,6 @@ class LatentFactorExplainer:
         self.test_array = test_array
         self.recommender_name = recommender_name
         self.data_name = data_name
-        self.items_array = kw_dict['items_array']
         self.device = kw_dict['device']
 
     '''
@@ -97,7 +96,7 @@ class LatentFactorExplainer:
         for i in sorted_m: #i is never used -- should this be in a loop?
             total_items += 1
             p = self._mask_items(user_tensor, sorted_m, total_items)
-            kw_dict = self.kw_dict #suggest directly using the target index instead of passing in the whole dictionary
+            kw_dict = self.kw_dict #suggest directly using the target index instead of passing in the whole dictionary (and setting the index in the constructor)
             i1_rank = get_index_in_the_list(p, user_tensor, targ_id, self.recommender, **kw_dict) + 1
             
             if (i1_rank > targ_idx + DEFAULT_K):

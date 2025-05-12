@@ -22,7 +22,6 @@ class PopularityExplainer:
         self.kw_dict = kw_dict
         self.pop_dict = kw_dict['pop_dict']
         self.device = kw_dict['device']
-        self.items_array = kw_dict['items_array']
 
     '''
         ADD WHAT FUNCTION DOES HERE (before printing)
@@ -90,7 +89,7 @@ class PopularityExplainer:
         for i in sorted_sim_items: #same comment as in latent_factors about use of i
             total_items += 1
             POS_masked = self._mask_items(user_tensor, sorted_sim_items, total_items)
-            kw_dict=  self.kw_dict #suggest directly using the target index instead of passing in the whole dictionary
+            kw_dict = self.kw_dict #suggest directly using the target index instead of passing in the whole dictionary
             targ_rank = get_index_in_the_list(POS_masked, user_tensor, targ_id, self.recommender, **kw_dict) + 1
         
             if (targ_rank > DEFAULT_K + targ_idx):

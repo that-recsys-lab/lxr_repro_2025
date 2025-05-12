@@ -25,7 +25,7 @@ from load_data import load_data
 '''
 class Help_Functions:
     def __init__(self, recommender, data_name, recommender_name, kw):
-        self.recommender = recommender
+        self.recommender = recommender # doesn't seem to be used anywhere? if not, delete
 
         dict_data = load_data(data_name, recommender_name, kw)
         self.all_items_tensor = dict_data['all_items_tensor']
