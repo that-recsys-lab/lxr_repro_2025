@@ -1,8 +1,9 @@
 import numpy as np
 import os
-from pathlib import Path
 import torch
-from recommenders_architecture import MLP, VAE
+from pathlib import Path
+
+from recommenders_architecture import MLP, VAE #VAE is never used
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 export_dir = os.getcwd()
