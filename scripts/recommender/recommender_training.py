@@ -1,37 +1,23 @@
-# train.py
-import pandas as pd
-import numpy as np
-import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-export_dir = os.getcwd()
-from pathlib import Path
-import pickle
-from collections import defaultdict
-import time
-import torch
-import torch.nn as nn
-import copy
-import torch.nn.functional as F
-import optuna
 import logging
-import matplotlib.pyplot as plt
-import ipynb
-import importlib
+import numpy as np
+import optuna
+import os
+import torch
+from pathlib import Path
+
 from help_functions import sample_indices, recommender_evaluations
 from load_data import load_data
 from recommenders_architecture import MLP, VAE
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+export_dir = os.getcwd()
 
-
-
-
-
-
-recommender=RecommenderTrainer("ML1M", "MLP", kw_dict )
-
-
-
-
+'''
+    CLASS DESCRIPTION
+    Note: I'm not going to bother deleting all these commented out lines of code
+    in case they are still helpful for testing. But should be deleted before
+    the code is finalized
+'''
 class RecommenderTrainer:
     def __init__(self, data_name, recommender_name, **kw_dict):
         self.data_name = data_name
@@ -55,7 +41,7 @@ class RecommenderTrainer:
         '''
 
         #self.data = load_data(data_name, recommender_name)
-        self.kw_dict=kw_dict
+        self.kw_dict = kw_dict
         '''
         self.kw_dict = {
             'device': torch.device("mps" if torch.cuda.is_available() else "cpu"),
@@ -70,17 +56,12 @@ class RecommenderTrainer:
         '''
         #self.checkpoints_path = Path("checkpoints")
         #self.checkpoints_path.mkdir(parents=True, exist_ok=True)
-
-
-
-
         #self.train_losses_dict = {}
         #self.test_losses_dict = {}
         #self.HR10_dict = {}
 
-        
-
-
+    '''
+    '''
     def optimize(self, n_trials=20):
         objective_fn = self.mlp_objective if self.recommender_name == "MLP" else self.vae_objective
         study = optuna.create_study(direction='maximize')
@@ -88,7 +69,6 @@ class RecommenderTrainer:
         study.optimize(objective_fn, n_trials=n_trials)
 
     def MLP_objective(self,trial):
-    
         lr = trial.suggest_float('learning_rate', 0.001, 0.01)
         batch_size = trial.suggest_categorical('batch_size', [256, 512, 1024])
         hidden_dim = trial.suggest_categorical('hidden_dim', [64, 128, 256, 512])
@@ -118,7 +98,6 @@ class RecommenderTrainer:
         num_training = data['train_data'].shape[0]
         num_batches = int(np.ceil(num_training / batch_size))
 
-        
         for epoch in range(epochs):
             train_matrix = sample_indices(data['train_data'].copy(), **self.kw_dict)
             perm = np.random.permutation(num_training)
@@ -161,7 +140,6 @@ class RecommenderTrainer:
             print(f'train pos_loss = {np.mean(train_pos_loss)}, neg_loss = {np.mean(train_neg_loss)}')    
             train_losses.append(np.mean(loss))
             torch.save(model.state_dict(), Path(self.checkpoints_path, f'MLP_{data_name}_{round(lr,4)}_{batch_size}_{trial.number}_{epoch}.pt'))
-
 
             model.eval()
             test_matrix = np.array(data['static_test_data'])
@@ -207,7 +185,7 @@ class RecommenderTrainer:
         lr = trial.suggest_float('learning_rate', 0.001, 0.01)
         batch_size = trial.suggest_categorical('batch_size', [64,128,256])
         epochs = 20
-        model = VAE(VAE_config ,**kw_dict)
+        model = VAE(VAE_config, self.kw_dict) #where is VAE_config coming from?
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         train_losses = []
         test_losses = []

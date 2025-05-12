@@ -1,25 +1,11 @@
 
-import pandas as pd
 import numpy as np
 import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-export_dir = os.getcwd()
-from pathlib import Path
-import pickle
-from collections import defaultdict
-import time
 import torch
 import torch.nn as nn
-import copy
-import optuna
-import logging
-import matplotlib.pyplot as plt
-import random
-import ipynb
-import wandb
-import importlib
-from sklearn.metrics.pairwise import cosine_similarity
-import time
+
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+export_dir = os.getcwd()
 
 ## MLP recommender
 class MLP(nn.Module):
@@ -33,18 +19,13 @@ class MLP(nn.Module):
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, user_tensor, item_tensor):
-       
-
         user_vec = self.users_fc(user_tensor.to(self.device))
         item_vec = self.items_fc(item_tensor.to(self.device))
         output = torch.matmul(user_vec, item_vec.T).to(self.device)
         return self.sigmoid(output).to(self.device)
 
 
-
-
 ## VAE recommender Architecture
-
 class VAE(nn.Module):
     def __init__(self, model_conf, **kw):
         super(VAE, self).__init__()

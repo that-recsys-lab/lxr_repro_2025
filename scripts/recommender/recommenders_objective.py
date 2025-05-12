@@ -1,23 +1,11 @@
-import optuna
-import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
+import torch
+from recommenders_architecture import MLP, VAE
+
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 export_dir = os.getcwd()
-from pathlib import Path
-import pickle
-from collections import defaultdict
-import time
-import torch
-import torch.nn as nn
-import copy
-import torch.nn.functional as F
-import optuna
-import logging
-import matplotlib.pyplot as plt
-import ipynb
-import importlib
-from recommenders_architecture import MLP, VAE
 
 
 train_losses_dict = {}

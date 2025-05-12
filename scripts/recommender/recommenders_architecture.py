@@ -1,14 +1,11 @@
-import pandas as pd
 import numpy as np
 import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-export_dir = os.getcwd()
-from pathlib import Path
-from collections import defaultdict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+export_dir = os.getcwd()
 
 
 
@@ -27,8 +24,6 @@ class MLP(nn.Module):
         item_vec = self.items_fc(item_tensor.to(self.device))
         output = torch.matmul(user_vec, item_vec.T).to(self.device)
         return self.sigmoid(output).to(self.device)
-
-
 
 
 class VAE(nn.Module):
