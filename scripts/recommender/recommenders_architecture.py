@@ -13,29 +13,30 @@ import torch.nn.functional as F
 
 
 class MLP(nn.Module):
-    def __init__(self, hidden_size, **kw):
+    def __init__(self,data_name, **kw):
         super(MLP, self).__init__()
-        user_size = kw['num_items']
-        item_size = kw['num_items']
-        self.device = kw['device']
-        self.users_fc = nn.Linear(user_size, hidden_size, bias = True).to(self.device)
-        self.items_fc = nn.Linear(item_size, hidden_size, bias = True).to(self.device)
+        #user_size = kw['num_items']
+        #item_size = kw['num_items']
+        #self.device = kw['device']
+        self.users_fc = nn.Linear(kw['num_items'][data_name], kw['hidden_dim'][(data_name,'MLP')], bias = True).to(device=kw['device'])
+        self.items_fc = nn.Linear(kw['num_items'][data_name], kw['hidden_dim'][(data_name,'MLP')], bias = True).to(device=kw['device'])
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, user_tensor, item_tensor):
-        user_vec = self.users_fc(user_tensor.to(self.device))
-        item_vec = self.items_fc(item_tensor.to(self.device))
-        output = torch.matmul(user_vec, item_vec.T).to(self.device)
-        return self.sigmoid(output).to(self.device)
+        user_vec = self.users_fc(user_tensor)
+        item_vec = self.items_fc(item_tensor)
+        output = torch.matmul(user_vec, item_vec.T)
+        return self.sigmoid(output)
 
 
 
 
 class VAE(nn.Module):
-    def __init__(self, model_conf, **kw):
+    def __init__(self, data_name, **kw):
+        model_conf=kw['VAE_config']
         super(VAE, self).__init__()
         self.device = kw['device'] 
-        num_items = kw['num_items'] 
+        num_items = kw['num_items'][data_name]
         self.num_items = num_items
         self.enc_dims = [self.num_items] + model_conf['enc_dims']
         self.dec_dims = self.enc_dims[::-1]
@@ -84,12 +85,10 @@ class VAE(nn.Module):
         
         epsilon = torch.zeros_like(std_q).normal_(mean=0, std=0.01)
         sampled_z = mu_q + self.training * epsilon * std_q
-        print('sampled_z:', sampled_z.shape)
 
         output = sampled_z
         for layer in self.decoder:
             output = layer(output)
-            print('output_test:', output.shape)
 
         if self.training:
             kl_loss = ((0.5 * (-logvar_q + torch.exp(logvar_q) + torch.pow(mu_q, 2) - 1)).sum(1)).mean()

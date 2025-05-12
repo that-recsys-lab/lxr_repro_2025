@@ -1,43 +1,52 @@
-
-import pandas as pd
 import numpy as np
 import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-export_dir = os.getcwd()
-from pathlib import Path
-import pickle
-from collections import defaultdict
-import time
 import torch
 import torch.nn as nn
-import copy
-import optuna
-import logging
-import matplotlib.pyplot as plt
-import random
-import ipynb
-import wandb
-import importlib
 from sklearn.metrics.pairwise import cosine_similarity
-from help_functions import get_index_in_the_list
-
+from help_functions import Help_Functions
+from pathlib import Path
+from load_data import load_data, targ_item
+from recommender.recommenders_architecture import MLP, VAE
+from Config_Kw_Dict import get_kw_dict
 
 
 class LatentFactorExplainer:
     
-    def __init__(self,MF_recommender,recommender,kw_dict,targ_test, test_array, recommender_name, data_name):
-
+    def __init__(self, recommender_name, data_name):
+        self.kw=get_kw_dict()
+        self.data_name=data_name
+        self.recommender_name=recommender_name
+        MF_recommender=self.load_recommender(recommender_name='MLP')
+        recommender=self.load_recommender(recommender_name)
         self.user_embeddings = MF_recommender.users_fc.weight.detach().cpu().numpy()
         self.item_embeddings = MF_recommender.items_fc.weight.detach().cpu().numpy()
-        self.kw_dict=kw_dict
         self.recommender=recommender
-        self.test_array=test_array
-        self.recommender_name=recommender_name
-        self.data_name=data_name
-        self.targ_test=targ_test
-        self.items_array=kw_dict['items_array']
-        self.device=kw_dict['device']
+        self.device=self.kw['device']
+        self.hf=Help_Functions(self.recommender, self.data_name, self.recommender_name,self.kw)
 
+
+
+    
+         
+
+
+    def load_recommender(self,recommender_name):
+        kw_dict= self.kw
+        #data_name=self.data_name
+        if recommender_name=='MLP':
+
+            recommender = MLP(self.data_name, **kw_dict)
+        elif recommender_name=='VAE':
+            recommender = VAE(self.data_name, **kw_dict)
+        recommender_checkpoint = torch.load(Path(kw_dict['checkpoints_path'], kw_dict['recommender_path'][(self.data_name, recommender_name)] ), map_location=kw_dict['device'])
+        recommender.load_state_dict(recommender_checkpoint)
+        recommender.eval()
+        for param in recommender.parameters():
+            param.requires_grad= False
+        return recommender
+        
+    
 
 
 
@@ -73,6 +82,7 @@ class LatentFactorExplainer:
     
     def mask_items(self,user_tensor, m1, p):
         # Helper function to mask items
+       
         mask = torch.zeros_like(user_tensor, dtype=torch.float32, device=self.device)
         indices = [int(item[0]) for item in m1[:p]]
         mask[indices] = 1
@@ -82,7 +92,8 @@ class LatentFactorExplainer:
 
 
     def process_sim_items(self, mask, targ_id, targ_idx, user_tensor, k):
-        
+
+
         sorted_m = list(sorted(mask.items(), key=lambda item: item[1], reverse=True))
 
         total_items = 0 ## total perturbation
@@ -93,8 +104,7 @@ class LatentFactorExplainer:
             p = self.mask_items(user_tensor, sorted_m, total_items)
             
             ##index of target item 
-            kw_dict=self.kw_dict
-            i1_rank = get_index_in_the_list(p, user_tensor, targ_id,self.recommender, **kw_dict) + 1
+            i1_rank = self.hf.get_index_in_the_list(p, user_tensor, targ_id) + 1
             
             if (i1_rank > targ_idx + k):
                 #return total_items, i, Indic_score
@@ -128,18 +138,25 @@ class LatentFactorExplainer:
         np.random.seed(42)
 
         MPRR_Row, MPRR_Percent=[],[]
-        num_of_rand_users = self.test_array.shape[0]   # number of users for evaluations 
-        random_rows = np.random.choice(self.test_array.shape[0], num_of_rand_users, replace=False)
-        random_sampled_array = self.test_array[random_rows]
+        ## loading train9ng and test datasets
+        dict_data=load_data(self.data_name, self.recommender_name, self.kw )
+        items_array=dict_data['items_array']
+        ## loading train and test targ items
+        _,targ_test=targ_item(self.data_name, self.recommender_name, self.recommender, self.kw)
+
+        test_array=dict_data['test_array']
+        num_of_rand_users = test_array.shape[0]   # number of users for evaluations 
+        random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
+        random_sampled_array = test_array[random_rows]
 
 
         for j in range(random_sampled_array.shape[0]):
             
             user_id = random_sampled_array[j][-1]
             user_tensor = torch.Tensor(random_sampled_array[j][:-1]).to(self.device)
-            targ = np.random.choice(self.targ_test[user_id])
-            targ_indx=list(self.targ_test[user_id]).index(targ)
-            targ_vector = self.items_array[targ]
+            targ = np.random.choice(targ_test[user_id])
+            targ_indx=list(targ_test[user_id]).index(targ)
+            targ_vector = items_array[targ]
             targ_tensor = torch.Tensor(targ_vector).to(self.device)
 
             p = self.Calculate_Explanation (user_tensor, targ , targ_indx, k=10)
@@ -150,3 +167,7 @@ class LatentFactorExplainer:
 
         print(f'MPNR Row for latent factors similarity for {self.data_name} and {self.recommender_name}:', np.mean(MPRR_Row))
         print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', len(MPRR_Row)*100/num_of_rand_users)
+
+
+
+

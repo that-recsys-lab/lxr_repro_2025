@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from load_data import load_data
+from pathlib import Path
+import os
 
 
 class Help_Functions:
@@ -13,19 +15,20 @@ class Help_Functions:
         self.recommender = recommender
         self.data_name=data_name
         self.recommender_name=recommender_name
-
         self.device = kw['device']
-        self.num_items = kw['num_items']
+        self.num_items = kw['num_items'][data_name]
         dict_data=load_data(data_name, recommender_name,kw )
         self.all_items_tensor = dict_data['all_items_tensor']
         self.items_array = dict_data['items_array']
         self.pop_array = dict_data['pop_array']
         self.static_test_data = dict_data['static_test_data']
+        self.output_type=kw['output_type'][recommender_name]
     
     
     
     
     
+         
     
     
     
@@ -51,19 +54,21 @@ class Help_Functions:
         data['neg'] = zero_indices
         return np.array(data)
 
-    def recommender_run(self, user_tensor, item_tensor=None, item_id=None, wanted_output='single', output_type='single'):
-        if output_type == 'single':
-            out = self.recommender(user_tensor, item_tensor)
+    def recommender_run(self, user_tensor, item_tensor=None, item_id=None, wanted_output='single'):
+        if self.output_type == 'single':
+            if wanted_output == 'single':
+                return self.recommender(user_tensor, item_tensor)
+            else:
+                return self.recommender(user_tensor, item_tensor).squeeze()
         else:
-            out = self.recommender(user_tensor)
-
-        if wanted_output == 'single':
-            return out.squeeze()[item_id] if output_type != 'single' else out
-        return out.squeeze()
+            if wanted_output == 'single':
+                return self.recommender(user_tensor).squeeze()[item_id]
+            else:
+                return self.recommender(user_tensor).squeeze()
 
     def get_top_k(self, user_tensor, original_user_tensor):
         item_prob_dict = {}
-        output_model = self.recommender_run(user_tensor, self.all_items_tensor, wanted_output='vector').cpu().detach().numpy().tolist()
+        output_model = self.recommender_run(user_tensor, self.all_items_tensor, None,wanted_output='vector').cpu().detach().numpy().tolist()
         original_user_vector = original_user_tensor.cpu().numpy()[:self.num_items]
         catalog = np.ones_like(original_user_vector) - original_user_vector
         output = catalog * output_model
@@ -74,7 +79,7 @@ class Help_Functions:
 
         return dict(sorted(item_prob_dict.items(), key=lambda item: item[1], reverse=True))
 
-    def get_index_in_list(self, user_tensor, original_user_tensor, item_id):
+    def get_index_in_the_list(self, user_tensor, original_user_tensor, item_id):
         top_k_list = list(self.get_top_k(user_tensor, original_user_tensor).keys())
         return top_k_list.index(item_id)
 
@@ -83,7 +88,7 @@ class Help_Functions:
 
 
     def get_user_recommended_item(self, user_tensor):
-        user_res = self.recommender_run(user_tensor, self.all_items_tensor, wanted_output='vector')[:self.num_items]
+        user_res = self.recommender_run(user_tensor, self.all_items_tensor,None, wanted_output='vector')[:self.num_items]
         user_tensor = user_tensor[:self.num_items]
         catalog = torch.ones_like(user_tensor) - user_tensor
         recommendations = torch.mul(user_res, catalog)

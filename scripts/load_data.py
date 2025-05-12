@@ -4,7 +4,11 @@ import numpy as np
 import pandas as pd
 import torch
 import pickle
-from help_functions import Help_Functions
+
+
+
+
+
 
 
 
@@ -21,11 +25,10 @@ def load_data(data_name, recommender_name, kw_Dict):
     Returns:
         Tuple[np.ndarray, np.ndarray]: Processed train and test data arrays.
     """
-
     DP_DIR = Path("processed_data", data_name) 
-    export_dir = Path(os.getcwd())
-    files_path = Path(export_dir, DP_DIR)
-    num_items = kw_Dict['num_items']['data_name']
+    export_dir = Path(os.getcwd()).parent
+    files_path = Path(export_dir/'data', DP_DIR)
+    num_items = kw_Dict['num_items'][data_name]
 
     if num_items is None:
         raise ValueError(f"Unknown dataset: {data_name}")
@@ -78,9 +81,14 @@ def load_data(data_name, recommender_name, kw_Dict):
 ## Load / create top recommended items dict
 
 def targ_item( data_name, recommender_name, recommender, kw_dict):
-    
-    base_path = Path("processed_data") / data_name
-    full_path = Path(os.getcwd()) / base_path
+    from help_functions import Help_Functions
+
+    #base_path = Path("processed_data") / data_name
+    #full_path = Path(os.getcwd()) / base_path
+    DP_DIR = Path("processed_data", data_name) 
+    export_dir = Path(os.getcwd()).parent
+    files_path = Path(export_dir/'data', DP_DIR)
+
     device=kw_dict['device']
     dic=load_data(data_name, recommender_name, kw_dict)
     hf=Help_Functions(recommender, data_name, recommender_name, kw_dict)
@@ -107,10 +115,10 @@ def targ_item( data_name, recommender_name, recommender, kw_dict):
 
     
 
-    with open(Path(full_path,f'targ_train_{data_name}_{recommender_name}.pkl'), 'wb') as f:
+    with open(Path(files_path,f'targ_train_{data_name}_{recommender_name}.pkl'), 'wb') as f:
         pickle.dump(targ_train, f)
     
-    with open(Path(full_path,f'targ_test_{data_name}_{recommender_name}.pkl'), 'wb') as f:
+    with open(Path(files_path,f'targ_test_{data_name}_{recommender_name}.pkl'), 'wb') as f:
         pickle.dump(targ_test, f)
     
 
