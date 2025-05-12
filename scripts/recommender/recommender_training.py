@@ -185,7 +185,7 @@ class RecommenderTrainer:
         lr = trial.suggest_float('learning_rate', 0.001, 0.01)
         batch_size = trial.suggest_categorical('batch_size', [64,128,256])
         epochs = 20
-        model = VAE(VAE_config, self.kw_dict) #where is VAE_config coming from?
+        model = VAE(VAE_config, **self.kw_dict) #where is VAE_config coming from?
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         train_losses = []
         test_losses = []
