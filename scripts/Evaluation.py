@@ -25,7 +25,7 @@ class Evaluation(nn.Module):
     def forward(self, user_tensor, i1, i1_index, i1_tensor):
         user_hist_size = int(torch.sum(user_tensor))
         m1 = self._find_LXR_mask(user_tensor, i1_tensor)
-        return self._process_sim_items(m1, i1, i1_index, user_tensor, user_hist_size)
+        return self._process_sim_items(user_tensor, i1, i1_index, m1, user_hist_size)
     
     '''
         DESCRIPTION OF METHOD
@@ -40,14 +40,14 @@ class Evaluation(nn.Module):
 
     '''
         DESCRIPTION OF METHOD
-        m1: ??
+        user_tensor: tensor representing the user
         i1: target item id
         i1_index: index (rank) of target item
-        user_tensor: tensor representing the user
-        user_hist_size: 
+        m1: ??
+        user_hist_size: ???
         returns:
     '''
-    def _process_sim_items(self, m1, i1, i1_index, user_tensor, user_hist_size):
+    def _process_sim_items(self, user_tensor, i1, i1_index, m1, user_hist_size):
         sorted_m1 = list(sorted(m1.items(), key=lambda item: item[1], reverse=True))[:user_hist_size]
         total_items = 0
         for _ in sorted_m1:
