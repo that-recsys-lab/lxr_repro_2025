@@ -126,3 +126,54 @@ def targ_item( data_name, recommender_name, recommender, kw_dict):
 
    
     return targ_train, targ_test
+
+
+
+
+
+## Load / create top recommended items dict
+
+def targ_item_LXR( data_name, recommender_name, recommender, kw_dict):
+    from scripts.help_functions import Help_Functions
+
+    #base_path = Path("processed_data") / data_name
+    #full_path = Path(os.getcwd()) / base_path
+    DP_DIR = Path("processed_data", data_name) 
+    export_dir = Path(os.getcwd())
+    files_path = Path(export_dir/'data', DP_DIR)
+
+    device=kw_dict['device']
+    dic=load_data(data_name, recommender_name, kw_dict)
+    hf=Help_Functions(recommender, data_name, recommender_name, kw_dict)
+
+    train_array=dic['train_array']
+    test_array=dic['test_array']
+
+
+    ## target item for training and testing
+    targ_train, targ_test = {}, {}
+    
+    for i in range(train_array.shape[0]):
+        user_index = train_array[i][-1]
+        user_tensor = torch.Tensor(train_array[i][:-1]).to(device)
+        recomm_list=hf.get_user_recommended_item(user_tensor)
+        ## Sampling for the target item 
+        targ_train[user_index] = int(recomm_list[0].cpu())
+    for i in range(test_array.shape[0]):
+        user_index = test_array[i][-1]
+        user_tensor = torch.Tensor(test_array[i][:-1]).to(device)
+        recomm_list=hf.get_user_recommended_item(user_tensor)
+        ## Sampling for the target item 
+        targ_test[user_index] = int(recomm_list[0].cpu())
+
+    
+
+    with open(Path(files_path,f'targ_train_{data_name}_{recommender_name}.pkl'), 'wb') as f:
+        pickle.dump(targ_train, f)
+    
+    with open(Path(files_path,f'targ_test_{data_name}_{recommender_name}.pkl'), 'wb') as f:
+        pickle.dump(targ_test, f)
+    
+
+   
+    return targ_train, targ_test
