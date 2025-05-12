@@ -120,7 +120,7 @@ class Help_Functions:
     '''
         DESCRIPTION OF METHOD
         user_tensor: tensor representing the user
-        returns: ???
+        returns: ???  NOTE that it is top 10
     '''
     def get_user_recommended_item(self, user_tensor):
         user_res = self.recommender_run(user_tensor, self.all_items_tensor, wanted_output='vector')[:self.num_items]
