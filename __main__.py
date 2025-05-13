@@ -8,7 +8,7 @@ from scripts.LXR import LXR
 import sys
 import os
 
-explainer_name = "BF"      ## Can be  "LF", "POP", "BF", "LXR-10" "LXR"
+explainer_name = "POP"      ## Can be  "LF", "POP", "BF", "LXR-10" "LXR"
 recommender_name = 'MLP'    ## Can be "MLP" and "VAE"
 data_name = 'ML1M'          ## Can be "ML1M", "Yahoo" and "Pinterest"
 numb_rand_users=100         ## Number of users for  evaluation. We used all users for all experiments.
