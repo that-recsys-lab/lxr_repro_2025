@@ -2,25 +2,29 @@
 from itertools import combinations
 import numpy as np
 import os
+from pathlib import Path
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 export_dir = os.getcwd()
 import pickle
 import torch
 import torch.nn as nn
-from scripts.help_functions import get_index_in_the_list
+from scripts.help_functions import Help_Functions
+from scripts.Config_Kw_Dict import get_kw_dict
+from scripts.recommender.recommenders_architecture import MLP, VAE
 
 
 
 
 
 class BruteForceEvaluator:
-    def __init__(self, data_name, recommender_name, recommender, kw_dict):
+    def __init__(self, recommender_name, data_name):
+
+        self.kw_dict = get_kw_dict()
         self.data_name = data_name
         self.recommender_name = recommender_name
-        self.recommender = recommender
-        self.kw_dict = kw_dict
-        self.device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+        self.recommender = self.load_recommender(recommender_name)
         self._load_lxr_outputs()
+        self.hf=Help_Functions(self.recommender,data_name, recommender_name, self.kw_dict )
 
     def _load_pickle(self, filename):
         with open(filename, 'rb') as f:
@@ -38,12 +42,27 @@ class BruteForceEvaluator:
         self.Targ_INDX = self._load_pickle(f'Targ_INDX_LXR_{d}_{r}.pkl')
 
 
+    def load_recommender(self,recommender_name):
+        kw_dict= self.kw_dict
+        #data_name=self.data_name
+        if recommender_name=='MLP':
+
+            recommender = MLP(self.data_name, **kw_dict)
+        elif recommender_name=='VAE':
+            recommender = VAE(self.data_name, **kw_dict)
+        recommender_checkpoint = torch.load(Path(kw_dict['checkpoints_path'], kw_dict['recommender_path'][(self.data_name, recommender_name)] ), map_location=kw_dict['device'])
+        recommender.load_state_dict(recommender_checkpoint)
+        recommender.eval()
+        for param in recommender.parameters():
+            param.requires_grad= False
+        return recommender
 
         
     def evaluate(self):
         indices = [i for i, val in enumerate(self.MPRR_R[49]) if val < 5]
         MPNR_lxr = []
         MPNR_bf = []
+        print(f'======================== Brute Force explainer run for {self.data_name} and {self.recommender_name}========================')
 
         for j in indices:
             user_tensor = self.User_Tensor[49][j].to(self.device)
@@ -56,7 +75,7 @@ class BruteForceEvaluator:
                 mask = torch.zeros_like(user_tensor, device=self.device)
                 mask[i] = 1
                 p = user_tensor - mask
-                indx = get_index_in_the_list(p, user_tensor, self.Targ_test[49][j], self.recommender, **self.kw_dict) + 1
+                indx = self.hf.get_index_in_the_list(p, user_tensor, self.Targ_test[49][j], self.recommender, **self.kw_dict) + 1
 
                 if indx > 10 + self.Targ_INDX[49][j]:
                     MPNR_lxr.append(self.MPRR_R[49][j])

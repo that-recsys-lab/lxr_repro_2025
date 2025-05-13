@@ -22,7 +22,6 @@ from scripts.recommender.recommenders_architecture import MLP, VAE
 
 
 
-
 class LXR ():
 
     def __init__(self, recommender_name,data_name, num_of_rand_users ):
