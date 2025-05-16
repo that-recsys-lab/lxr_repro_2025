@@ -11,9 +11,9 @@ import logging
 import matplotlib.pyplot as plt
 import wandb
 from scripts.Config_Kw_Dict import get_kw_dict
-from scripts.Evaluation import Evaluation
-from scripts.Explainer import Explainer
-from scripts.LXR_loss import LXR_loss
+from lxr_eval.src.lxr_eval.Evaluation import Evaluation
+from lxr.src.lxr.Explainer import Explainer
+from lxr.src.lxr.LXR_loss import LXR_loss
 from scripts.load_data import targ_item, load_data
 from scripts.recommender.recommenders_architecture import MLP, VAE
 
@@ -31,14 +31,14 @@ from scripts.recommender.recommenders_architecture import MLP, VAE
 
 class LXR_10 ():
 
-    def __init__(self, recommender_name,data_name, num_of_rand_users ):
+    def __init__(self, recommender_name,data_name, num_of_rand_users, task ):
         self.data_name=data_name
         self.recommender_name=recommender_name
         self.num_of_rand_users=num_of_rand_users
         self.kw=get_kw_dict()
         self.device=self.kw['device']
         self.recommender=self.load_recommender(recommender_name)
-
+        self.task=task
 
 
 
@@ -61,7 +61,16 @@ class LXR_10 ():
             param.requires_grad= False
         return recommender
 
-
+    def select_target(self, user_id,targ_test):
+        if self.task=="Top1":
+            ## select Top1 item for Top1 task
+            targ = int(targ_test[user_id][0])
+            targ_indx=0
+        else:
+            ## Random sampling amonth Top10 items for Top10 task
+            targ = np.random.choice(targ_test[user_id])
+            targ_indx=list(targ_test[user_id]).index(targ)
+        return targ, targ_indx
 
 
     def predict (self ):
@@ -125,7 +134,7 @@ class LXR_10 ():
         kw_dict=self.kw
         loss_func = LXR_loss(self.data_name, self.recommender_name,lambda_pos, lambda_neg, alpha, self.recommender, kw_dict)
 
-        print(f'======================== LXR-10 run for {self.data_name} and {self.recommender_name}========================')
+        print(f'======================== LXR10 ({self.task}task) run for {self.data_name} and {self.recommender_name}========================')
         
         for epoch in range(epochs):
             if epoch%15 == 0 and epoch>0: # decrease learning rate every 15 epochs
@@ -166,7 +175,7 @@ class LXR_10 ():
 
         
 
-            torch.save(explainer.state_dict(), Path(kw_dict['checkpoints_path'], f'LXR-10_{self.data_name}_{self.recommender_name}_{epoch}.pt'))
+            torch.save(explainer.state_dict(), Path(kw_dict['checkpoints_path'], f'LXR10_{self.task}_{self.data_name}_{self.recommender_name}_{epoch}.pt'))
             
             explainer.eval()
 
@@ -180,12 +189,14 @@ class LXR_10 ():
                 user_id = random_sampled_array[j][-1]
                 user_tensor = torch.Tensor(random_sampled_array[j][:-1]).to(self.device)
                 ## Target item for testing dataset
-                i1 = np.random.choice(targ_test[user_id])
-                i1_index=list(targ_test[user_id]).index(i1)
+                i1,i1_index= self.select_target(user_id,targ_test)
+
+                #i1 = np.random.choice(targ_test[user_id])
+                #i1_index=list(targ_test[user_id]).index(i1)
                 i1_vector = items_array[i1]
                 i1_tensor = torch.Tensor(i1_vector).to(self.device)
                 evaluation=Evaluation(self.data_name,self.recommender_name,explainer,self.recommender, kw_dict, k=10 )
-                p= evaluation(user_tensor, i1,i1_index, i1_tensor)
+                p,q= evaluation(user_tensor, i1,i1_index, i1_tensor)
 
                 if p is not None:
                     MPRR_R.append(p)

@@ -5,7 +5,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 from os import path
-from scripts.help_functions import Help_Functions
+from lxr_eval.src.lxr_eval.help_functions import Help_Functions
 from scripts.recommender.recommenders_architecture import MLP, VAE
 from scripts.Config_Kw_Dict import get_kw_dict
 from scripts.load_data import load_data, targ_item

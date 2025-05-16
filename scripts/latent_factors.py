@@ -4,7 +4,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 import torch
 import torch.nn as nn
 from sklearn.metrics.pairwise import cosine_similarity
-from scripts.help_functions import Help_Functions
+from lxr_eval.src.lxr_eval.help_functions import Help_Functions
 from pathlib import Path
 from scripts.load_data import load_data, targ_item
 from scripts.recommender.recommenders_architecture import MLP, VAE

@@ -8,7 +8,8 @@ export_dir = os.getcwd()
 import pickle
 import torch
 import torch.nn as nn
-from scripts.help_functions import Help_Functions
+from lxr_eval.src.lxr_eval.help_functions import Help_Functions
+
 from scripts.Config_Kw_Dict import get_kw_dict
 from scripts.recommender.recommenders_architecture import MLP, VAE
 

@@ -7,7 +7,7 @@ export_dir = os.getcwd()
 from pathlib import Path
 import torch
 import torch.nn as nn
-from scripts.help_functions import Help_Functions
+from lxr_eval.src.lxr_eval.help_functions import Help_Functions
 
 
 
