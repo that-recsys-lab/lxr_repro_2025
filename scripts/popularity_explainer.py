@@ -126,11 +126,9 @@ class PopularityExplainer:
         # number of users for evaluations
 
         test_array=dict_data['test_array']
-        #num_of_rand_users = test_array.shape[0] 
-        num_of_rand_users = 10
+        num_of_rand_users = test_array.shape[0] 
 
         random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
-        #random_sampled_array = test_array[random_rows]
         random_sampled_array = test_array[random_rows]
 
         total_pert=[]  ## size of perturbations
