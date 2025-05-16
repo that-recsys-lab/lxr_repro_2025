@@ -17,7 +17,7 @@ import pickle
 
 class LatentFactorExplainer:
     
-    def __init__(self, recommender_name, data_name):
+    def __init__(self, recommender_name, data_name, task):
         self.kw=get_kw_dict()
         self.data_name=data_name
         self.recommender_name=recommender_name
@@ -28,7 +28,7 @@ class LatentFactorExplainer:
         self.recommender=recommender
         self.device=self.kw['device']
         self.hf=Help_Functions(self.recommender, self.data_name, self.recommender_name,self.kw)
-
+        self.task=task
 
 
     
@@ -133,7 +133,16 @@ class LatentFactorExplainer:
         return total_items, perturb
     
 
-
+    def select_target(self, user_id,targ_test):
+        if self.task=="Top1":
+            ## select Top1 item for Top1 task
+            targ = int(targ_test[user_id][0])
+            targ_indx=0
+        else:
+            ## Random sampling amonth Top10 items for Top10 task
+            targ = np.random.choice(targ_test[user_id])
+            targ_indx=list(targ_test[user_id]).index(targ)
+        return targ, targ_indx
 
 
     def predict(self):
@@ -151,17 +160,19 @@ class LatentFactorExplainer:
 
         test_array=dict_data['test_array']
         num_of_rand_users = test_array.shape[0]   # number of users for evaluations 
+
         random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = test_array[random_rows]
-        print(f'======================== Latent Factors (LF) Explainer run for {self.data_name} and {self.recommender_name}========================')
+        print(f'======================== Latent Factors (LF) Explainer ({self.task} Task) run for {self.data_name} and {self.recommender_name}========================')
 
 
         for j in range(random_sampled_array.shape[0]):
             
             user_id = random_sampled_array[j][-1]
             user_tensor = torch.Tensor(random_sampled_array[j][:-1]).to(self.device)
-            targ = np.random.choice(targ_test[user_id])
-            targ_indx=list(targ_test[user_id]).index(targ)
+            
+            targ,targ_indx= self.select_target(user_id,targ_test)
+
             targ_vector = items_array[targ]
 
             p,q = self.Calculate_Explanation (user_tensor, targ , targ_indx, k=10) ## P is perturbation size and q is sorted m
@@ -179,10 +190,10 @@ class LatentFactorExplainer:
                 MPNR_Row.append(p)
                 
 
-        print(f'MPNR Row for latent factors similarity for {self.data_name} and {self.recommender_name}:', np.mean(MPNR_Row))
-        print(f'Coverage for latent factors similarity for {self.data_name} and {self.recommender_name}:', len(MPNR_Row)*100/num_of_rand_users)
+        print(f'MPNR Row for latent factors similarity ({self.task} Task)  for {self.data_name} and {self.recommender_name}:', np.mean(MPNR_Row))
+        print(f'Coverage for latent factors similarity for ({self.data_name} Task) and {self.recommender_name}:', len(MPNR_Row)*100/num_of_rand_users)
 
-        with open(Path(Path(os.getcwd(),'scripts'),f'checkpoints/Records_LF_{self.data_name}_{self.recommender_name}.pkl'), 'wb') as f:
+        with open(Path(Path(os.getcwd(),'scripts'),f'checkpoints/Records_LF_{self.task}_{self.data_name}_{self.recommender_name}.pkl'), 'wb') as f:
                 pickle.dump(records_list, f)
     
         
