@@ -11,9 +11,6 @@ import pickle
 
 
 
-
-
-
 def load_data(data_name, recommender_name, kw_Dict):
     """
     Load and preprocess training and test data for a given dataset.
@@ -27,6 +24,7 @@ def load_data(data_name, recommender_name, kw_Dict):
     """
     DP_DIR = Path("processed_data", data_name) 
     export_dir = Path(os.getcwd())
+    
     #print('export_dir',export_dir)
     files_path = Path(export_dir/'data', DP_DIR)
     num_items = kw_Dict['num_items'][data_name]
@@ -83,7 +81,7 @@ def load_data(data_name, recommender_name, kw_Dict):
 ## Load / create top recommended items dict
 
 def targ_item( data_name, recommender_name, recommender, kw_dict):
-    from scripts.help_functions import Help_Functions
+    from lxr_eval.src.lxr_eval.help_functions import Help_Functions
 
     #base_path = Path("processed_data") / data_name
     #full_path = Path(os.getcwd()) / base_path
@@ -134,7 +132,8 @@ def targ_item( data_name, recommender_name, recommender, kw_dict):
 ## Load / create top recommended items dict
 
 def targ_item_LXR( data_name, recommender_name, recommender, kw_dict):
-    from scripts.help_functions import Help_Functions
+    from lxr_eval.src.lxr_eval.help_functions import Help_Functions
+
 
     #base_path = Path("processed_data") / data_name
     #full_path = Path(os.getcwd()) / base_path

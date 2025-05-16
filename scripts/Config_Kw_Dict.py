@@ -1,5 +1,4 @@
 
-
 import os
 from pathlib import Path
 import torch
@@ -9,7 +8,6 @@ import torch
 def get_kw_dict():
     export_dir = Path(os.getcwd(),'scripts')
     checkpoints_path = Path(export_dir, "checkpoints")
-
     return {
         'device': torch.device("mps" if torch.backends.mps.is_available() else 'cpu'),
 
@@ -34,13 +32,17 @@ def get_kw_dict():
 
         'recommender_path': {
             ("ML1M", "VAE"): checkpoints_path / "VAE_ML1M_0.0003_64.pt",
+
             ("ML1M", "MLP"): checkpoints_path / "MLP1_ML1M_0.0076_256_7.pt",
 
             ("Yahoo", "VAE"): checkpoints_path / "VAE_Yahoo_128.pt",
+
             ("Yahoo", "MLP"): checkpoints_path / "MLP2_Yahoo_0.0083_128_1.pt",
 
             ("Pinterest", "VAE"): checkpoints_path / "VAE_Pinterest_12_18_0.0001_256.pt",
+
             ("Pinterest", "MLP"): checkpoints_path / "MLP_Pinterest_0.0062_512_21_0.pt"
+
         },
 
         'hidden_dim': {
