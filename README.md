@@ -31,7 +31,7 @@ uv pip install -r requirements.txt
 
 ## Project Structure
 
-'''text
+'''
 
 lxr_repro_2025/
 ├── scripts/                      ## Scripts for Explainers
@@ -63,7 +63,7 @@ lxr_repro_2025/
 ├── README.md                     ## Project overview and instructions
 
 
-
+'''
 
 
 
