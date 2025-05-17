@@ -71,7 +71,7 @@ To run the code, you need to specify the dataset, the recommender system, the ex
 explainer ('LF', 'POP', 'BF', 'LXR-10', 'LXR')
 recommender ('MLP', 'VAE')
 data ("ML1M', 'Yahoo', 'Pinterest')
-num_users (Any integer value)
+num_users (Valid integer value)
 task ('Top1', 'Top10')
 ```
 ## Example
