@@ -56,7 +56,7 @@ lxr_repro_2025/
 │   ├── figures/                  # For plots
 │   ├── results/                  # For .pkl, .csv, .json result files
 │   └── logs/                     # Optional logs from runs
-├── main.py                       # For running experiments
+├── run.py                       # For running experiments
 ├── requirements.txt              # Python dependencies
 ├── README.md                     # Project overview and instructions
 ```
@@ -67,7 +67,7 @@ This code uses the "Weights and Biases" library for tracking experiment paramete
 ## How to run the code?
 Training the explainer can take several hours, depending on your server’s capabilities. If time is limited, consider evaluating a smaller sample of users. In our experiments, we used the full test set; however, evaluating only 500 users significantly reduced the runtime. Keep in mind that using fewer users may result in less accurate results than those reported in the paper. To run the code, you need to specify the dataset, the recommender system, the explainer, the number of users, and the task. You can choose appropriate values for each of these parameters based on your requirements. For more details on configuring these parameters, please refer to the paper.
 ```
-explainer ('LF', 'POP', BF, 'LXR-10', 'LXR')
+explainer ('LF', 'POP', 'BF', 'LXR-10', 'LXR')
 recommender ('MLP', 'VAE')
 data ("ML1M', 'Yahoo', 'Pinterest')
 num_users (Any integer value)
