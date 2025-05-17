@@ -65,12 +65,15 @@ lxr_repro_2025/
 This code uses the "Weights and Biases" library for tracking experiment parameters: For more information see [https://docs.wandb.ai/quickstart/](https://docs.wandb.ai/quickstart/). In order to train the explainer, you will need to create an account and input the API key when running the tuning section of the explainer notebooks.
 
 ## How to run the code?
-Training the explainer can take several hours, depending on your server’s capabilities. If you're short on time, you may evaluate a smaller sample of users. In our experiments, we used the full test set, but selecting 200 users can significantly reduce runtime. Keep in mind that this may lead to less accurate results compared to those presented in the paper.
-To run the code you need to defien dataset, recommender, explainer, num usersa and task. Please refer to the paper for more details. You can choose these values for each of these ones:
+Training the explainer can take several hours, depending on your server’s capabilities. If time is limited, consider evaluating a smaller sample of users. In our experiments, we used the full test set; however, evaluating only 500 users significantly reduced the runtime. Keep in mind that using fewer users may result in less accurate results than those reported in the paper. To run the code, you need to specify the dataset, the recommender system, the explainer, the number of users, and the task. You can choose appropriate values for each of these parameters based on your requirements. For more details on configuring these parameters, please refer to the paper.
 ```
 explainer ('LF', 'POP', BF, 'LXR-10', 'LXR')
 recommender ('MLP', 'VAE')
 data ("ML1M', 'Yahoo', 'Pinterest')
 num_users (Any integer value)
 task ('Top1', 'Top10')
+```
+## Example
+```
+python main.py --explainer LXR-10 --recommender MLP --data ML1M --num_users 500 --task Top10
 ```
