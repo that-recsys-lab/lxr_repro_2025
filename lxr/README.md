@@ -1,4 +1,4 @@
-# lxr
+# Counterfactual Profile Perturbations for Recommendation Explanations: A Reproducibility Study
 
 This package implements the Learning to eXplain Recommendations (LXR) method from:
 
