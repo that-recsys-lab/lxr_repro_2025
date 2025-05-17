@@ -13,4 +13,18 @@ https://dl.acm.org/doi/abs/10.1145/3589334.3645560
 Many thanks to the authors of this paper for their assistance in our reproducibility work.
 
 
-Create a virtual environment 
+## Create a virtual environment and install dependencies
+
+It is recommended to use a virtual environment to manage dependencies. "Requirements.txt" contains the packages we used for this project. Run the following commands:
+
+```bash
+
+# Create a virtual environment
+uv venv
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Install required packages
+uv pip install -r requirements.txt
+```
