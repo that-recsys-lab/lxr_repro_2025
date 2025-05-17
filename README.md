@@ -12,6 +12,9 @@ https://dl.acm.org/doi/abs/10.1145/3589334.3645560
 
 Many thanks to the authors of this paper for their assistance in our reproducibility work.
 
+## LXR process
+![LXR_diagram](https://github.com/that-recsys-lab/lxr_repro_2025/blob/main/lxr-process.png)
+
 
 ## Create a virtual environment and install dependencies
 
