@@ -17,7 +17,7 @@ import pickle
 
 class LatentFactorExplainer:
     
-    def __init__(self, recommender_name, data_name, task):
+    def __init__(self, recommender_name, data_name,numb_rand_users, task):
         self.kw=get_kw_dict()
         self.data_name=data_name
         self.recommender_name=recommender_name
@@ -29,6 +29,7 @@ class LatentFactorExplainer:
         self.device=self.kw['device']
         self.hf=Help_Functions(self.recommender, self.data_name, self.recommender_name,self.kw)
         self.task=task
+        self.numb_rand_users=numb_rand_users
 
 
     
@@ -159,7 +160,7 @@ class LatentFactorExplainer:
         _,targ_test=targ_item(self.data_name, self.recommender_name, self.recommender, self.kw)
 
         test_array=dict_data['test_array']
-        num_of_rand_users = test_array.shape[0]   # number of users for evaluations 
+        num_of_rand_users = self.numb_rand_users  # number of users for evaluations 
 
         random_rows = np.random.choice(test_array.shape[0], num_of_rand_users, replace=False)
         random_sampled_array = test_array[random_rows]

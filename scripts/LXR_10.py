@@ -123,7 +123,8 @@ class LXR_10 ():
         
         ## A list for storing perturbations in all epochs. To select the best value among epochs
         MPRR_raw, MPRR_perc= [], []
-
+        
+        record_list=[] ## for storing all records for all epochs
         self.recommender.eval()
 
         num_items=self.kw['num_items'][self.data_name]
@@ -180,9 +181,9 @@ class LXR_10 ():
             explainer.eval()
 
 
-            ## storing perturbations in each epoch
+            ## storing perturbations in each epoch(Raw and Percentage)
             MPRR_R, MPRR_P=[],[]
-
+            records=[] ## for storing recprds for 1 epoch
 
             for j in range(self.num_of_rand_users):
 
@@ -202,12 +203,20 @@ class LXR_10 ():
                     MPRR_R.append(p)
                     MPRR_P.append(p/int(torch.sum(user_tensor)))
 
+                    records.append({'MPNR':p,
+                        'user_id': user_id,
+                         'user_tensor': user_tensor,
+                          'targ_item': i1,
+                           'targ_index': i1_index,
+                           'mask':q,
+                            'items_array':items_array   })
+
             coverage.append(len(MPRR_R))  
         
             ## creating a list for storing values of "total_items_avg" in each epoch
             MPRR_raw.append(np.mean(MPRR_R))
             MPRR_perc.append(np.mean(MPRR_P))
-            
+            record_list.append(records)
 
             print(f'Finished epoch {epoch} with  MPRR(raw) {np.mean(MPRR_R)}, MPRR(%) {np.mean(MPRR_P)*100},'
             f'and Coverage (%) {len(MPRR_R)*100/self.num_of_rand_users}')
@@ -220,7 +229,11 @@ class LXR_10 ():
             f'Best results at epoch {np.argmin(MPRR_raw)} with MPRR (raw) {np.min(MPRR_raw)},'
             f'MPRR (%)  {MPRR_perc[np.argmin(MPRR_raw)]*100}'
             f'and Coverage with value {coverage[np.argmin(MPRR_raw)]*100/self.num_of_rand_users}')  
-        
+
+
+        with open(Path(Path(os.getcwd(),'scripts'),f'checkpoints/Records_LXR10_{self.task}_{self.data_name}_{self.recommender_name}.pkl'), 'wb') as f:
+                pickle.dump(record_list, f)
+
         return np.max(coverage)*100/ self.num_of_rand_users # return the best total items value in this trial
 
 

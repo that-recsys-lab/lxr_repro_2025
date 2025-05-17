@@ -15,9 +15,8 @@ import torch.nn.functional as F
 import optuna
 import logging
 import matplotlib.pyplot as plt
-import ipynb
-import importlib
-from help_functions import sample_indices, recommender_evaluations
+
+from help_functions import Help_Functions
 from load_data import load_data
 from recommenders_architecture import MLP, VAE
 
@@ -27,7 +26,15 @@ from recommenders_architecture import MLP, VAE
 
 
 
-recommender=RecommenderTrainer("ML1M", "MLP", kw_dict )
+
+
+
+
+
+
+
+
+
 
 
 
