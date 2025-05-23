@@ -11,7 +11,7 @@ def read_args():
         description="LXR Reproducibility Runner for Explanation Experiments"
     )
 
-    parser.add_argument("explainer", type=str, help="LF, POP, BF, LXR, or LXR-10")
+    parser.add_argument("--explainer", type=str, help="LF, POP, BF, LXR, or LXR-10")
     parser.add_argument("--recommender", type=str, default="MLP", help="MLP or VAE")
     parser.add_argument("--data", type=str, default="ML1M", help="ML1M, Yahoo, or Pinterest")
     parser.add_argument("--num_users", type=int, default=1000, help="Number of users to evaluate")
